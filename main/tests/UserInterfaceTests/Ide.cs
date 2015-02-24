@@ -70,7 +70,7 @@ namespace UserInterfaceTests
 			return Session.GetGlobalValue<FilePath> ("MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument.FileName");
 		}
 
-		public static void BuildSolution ()
+		public static void BuildSolution (bool isPass = true)
 		{
 			RunAndWaitForTimer (
 				() => Session.ExecuteCommand (ProjectCommands.BuildSolution),
@@ -78,7 +78,8 @@ namespace UserInterfaceTests
 			);
 
 			var status = GetStatusMessage ();
-			Assert.AreEqual (status, "Build successful.");
+			var success = status.Contains ("Build successful.") || status.Contains ("Build: 0 errors");
+			Assert.IsTrue (isPass ? success : !success);
 		}
 
 		static void WaitUntil (Func<bool> done, int timeout = 20000, int pollStep = 200)
@@ -117,21 +118,26 @@ namespace UserInterfaceTests
 		public static void CreateProject (string name, string category, string kind, FilePath directory)
 		{
 			Session.ExecuteCommand (FileCommands.NewProject);
-			Session.WaitForWindow ("MonoDevelop.Ide.Projects.NewProjectDialog");
-
-			Session.SelectWidget ("lst_template_types");
+			Thread.Sleep (2000);
+			Session.SelectWidget ("templateTreeView");
 			Session.SelectTreeviewItem (category);
 
-			Session.SelectWidget ("boxTemplates");
-			var cells = Session.GetTreeviewCells ();
-			var cellName = cells.First (c => c!= null && c.StartsWith (kind + "\n", StringComparison.Ordinal));
-			Session.SelectTreeviewItem (cellName);
+			Session.SelectWidget ("templatesSubTreeView");
+			Session.SelectTreeviewItem (kind);
 
-			Gui.EnterText ("txt_name", name);
-			Gui.EnterText ("entry_location", directory);
 
+			Gui.PressButton ("nextButton");
+			Thread.Sleep (2000);
+
+			Session.TypeText (name);
+			Session.PressKey (Gdk.Key.Tab);
+			Session.PressKey (Gdk.Key.Tab);
+			Session.TypeText (directory.FullPath);
+
+
+			Thread.Sleep (1000);
 			RunAndWaitForTimer (
-				() => Gui.PressButton ("btn_new"),
+				() => Gui.PressButton ("nextButton"),
 				"MonoDevelop.Ide.Counters.OpenDocumentTimer"
 			);
 		}

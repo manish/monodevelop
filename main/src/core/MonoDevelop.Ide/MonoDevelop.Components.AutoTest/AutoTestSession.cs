@@ -231,7 +231,7 @@ namespace MonoDevelop.Components.AutoTest
 			get { return currentObject; }
 		}
 
-		static Gtk.Window GetFocusedWindow (bool throwIfNotFound = true)
+		public static Gtk.Window GetFocusedWindow (bool throwIfNotFound = true)
 		{
 			Gtk.Window win = null;
 			foreach (Gtk.Window w in Gtk.Window.ListToplevels ())

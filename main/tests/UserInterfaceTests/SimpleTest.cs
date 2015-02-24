@@ -30,6 +30,7 @@ using System.Threading;
 using MonoDevelop.Core;
 using MonoDevelop.Ide.Commands;
 using NUnit.Framework;
+using MonoDevelop.Refactoring;
 
 namespace UserInterfaceTests
 {
@@ -84,6 +85,44 @@ namespace UserInterfaceTests
 			Ide.CreateProject (projectName, projectCategory, projectKind, projectDirectory);
 
 			Ide.BuildSolution ();
+
+			Ide.CloseAll ();
+		}
+
+		[Test]
+		public void TestCollectionsGeneric ()
+		{
+			var projectName = "ConsoleProject";
+			var solutionParentDirectory = Util.CreateTmpDir (projectName);
+
+			var solutionDirectory = Path.Combine (solutionParentDirectory, projectName);
+
+			var projectDir = Path.Combine (solutionDirectory, projectName);
+			var programFile = Path.Combine (projectDir, "Program.cs");
+			var exe = Path.Combine (solutionDirectory, projectName, "bin", "debug", projectName+".exe");
+
+			Ide.CreateProject (projectName, ".NET", "Console Project", solutionParentDirectory);
+
+			Ide.OpenFile (programFile);
+
+			Session.SelectActiveWidget ();
+
+			const string data = "List<string> s = new List<string> () {\"one\", \"two\", \"three\"};\nConsole.WriteLine (\"Hello Xamarin!\");";
+			for (int i = 0; i < 8; i++)
+				Session.ExecuteCommand (TextEditorCommands.LineDown);
+			Session.ExecuteCommand (TextEditorCommands.LineStart);
+			Session.ExecuteCommand (TextEditorCommands.DeleteToLineEnd);
+			Session.TypeText (data);
+
+			Ide.BuildSolution (false);
+
+			Session.ExecuteCommand (RefactoryCommands.QuickFix);
+			Thread.Sleep (1000);
+			Session.PressKey (Gdk.Key.Return);
+
+			Ide.BuildSolution ();
+
+			AssertExeHasOutput (exe, "Hello Xamarin!");
 
 			Ide.CloseAll ();
 		}

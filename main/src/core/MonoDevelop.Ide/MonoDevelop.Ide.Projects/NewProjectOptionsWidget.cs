@@ -67,7 +67,7 @@ namespace MonoDevelop.Ide.Projects
 			
 			row++;
 			
-			nameEntry = new Entry ();
+			nameEntry = new Entry { Name = "projectNameEntry" };
 			nameEntry.Changed += NameChanged;
 			var nameLabel = new Label (GettextCatalog.GetString ("N_ame:")) {
 				UseUnderline = true,

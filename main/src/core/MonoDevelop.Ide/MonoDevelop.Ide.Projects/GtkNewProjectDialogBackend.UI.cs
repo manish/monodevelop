@@ -127,7 +127,7 @@ namespace MonoDevelop.Ide.Projects
 			templateCategoriesScrolledWindow.HscrollbarPolicy = PolicyType.Never;
 
 			// Template categories tree view.
-			templateCategoriesTreeView = new TreeView ();
+			templateCategoriesTreeView = new TreeView () { Name= "templateTreeView" };
 			templateCategoriesTreeView.BorderWidth = 0;
 			templateCategoriesTreeView.HeadersVisible = false;
 			templateCategoriesTreeView.Model = templateCategoriesListStore;
@@ -145,7 +145,7 @@ namespace MonoDevelop.Ide.Projects
 			templatesScrolledWindow.HscrollbarPolicy = PolicyType.Never;
 
 			// Templates tree view.
-			templatesTreeView = new TreeView ();
+			templatesTreeView = new TreeView { Name = "templatesSubTreeView" };
 			templatesTreeView.HeadersVisible = false;
 			templatesTreeView.Model = templatesListStore;
 			templatesTreeView.ModifyBase (StateType.Normal, templateListBackgroundColor);
@@ -215,7 +215,7 @@ namespace MonoDevelop.Ide.Projects
 			previousNextButtonBox.PackEnd (previousButton);
 
 			// Next button - bottom right.
-			nextButton = new Button ();
+			nextButton = new Button { Name = "nextButton" };
 			nextButton.Label = GettextCatalog.GetString ("Next");
 			previousNextButtonBox.PackEnd (nextButton);
 
