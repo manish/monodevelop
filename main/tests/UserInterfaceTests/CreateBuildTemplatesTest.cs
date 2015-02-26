@@ -34,13 +34,46 @@ using MonoDevelop.Refactoring;
 
 namespace UserInterfaceTests
 {
-	public class SimpleTest: UITestBase
+	/*
+	 * Project templates to be tests - Console Project, Library, Portable Library
+	 * Projects which cannot be tested
+	 *  - Empty Project: They do not have a build target set
+	 *  - Gtk# 2.0 Project - Throws an error when created, though builds fine
+	 *  - NUnit Library - needs NuGet update before building
+	 */
+	public class CreateBuildTemplatesTest: UITestBase
 	{
+		readonly static string DotNetProjectKind = ".NET";
+
 		[Test]
 		public void TestCreateBuildConsoleProject ()
 		{
-			CreateBuildProject ("ConsoleProject", "Console Project", ".NET");
+			CreateBuildProject ("ConsoleProject", "Console Project", DotNetProjectKind);
 		}
+
+		/*[Test]
+		public void TestCreateBuildGtkSharp20Project ()
+		{
+			CreateBuildProject ("Gtk20Project", "Gtk# 2.0 Project", DotNetProjectKind);
+		}*/
+
+		[Test]
+		public void TestCreateBuildLibrary ()
+		{
+			CreateBuildProject ("Library", "Library", DotNetProjectKind);
+		}
+
+		[Test]
+		public void TestCreateBuildPortableLibrary ()
+		{
+			CreateBuildProject ("PortableLibrary", "Portable Library", DotNetProjectKind);
+		}
+
+		/*[Test]
+		public void TestCreateBuildNUnitLibraryProject ()
+		{
+			CreateBuildProject ("NUnitLibraryProject", "NUnit Library Project", DotNetProjectKind);
+		}*/
 			
 		public void TestCollectionsGeneric ()
 		{
