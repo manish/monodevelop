@@ -125,7 +125,6 @@ namespace UserInterfaceTests
 			Session.SelectWidget ("templatesTreeView");
 			Session.SelectTreeviewItem (kind);
 
-
 			Gui.PressButton ("nextButton");
 			Thread.Sleep (2000);
 
@@ -133,7 +132,6 @@ namespace UserInterfaceTests
 			Session.PressKey (Gdk.Key.Tab);
 			Session.PressKey (Gdk.Key.Tab);
 			Session.TypeText (directory.FullPath);
-
 
 			Thread.Sleep (1000);
 			RunAndWaitForTimer (
