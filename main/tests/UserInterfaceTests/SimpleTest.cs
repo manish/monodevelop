@@ -36,33 +36,12 @@ namespace UserInterfaceTests
 {
 	public class SimpleTest: UITestBase
 	{
-		void AssertExeHasOutput (string exe, string expectedOutput)
-		{
-			var sw = new StringWriter ();
-			var p = ProcessUtils.StartProcess (new ProcessStartInfo (exe), sw, sw, CancellationToken.None);
-			Assert.AreEqual (0, p.Result);
-			string output = sw.ToString ();
-
-			Assert.AreEqual (expectedOutput, output.Trim ());
-		}
-
-		/*[Test]
-		public void CreateBuildProject ()
-		{
-			string projectName = "TestFoo";
-			string projectCategory = "C#";
-			string projectKind = "Console Project";
-
-			var projectDirectory = Util.CreateTmpDir (projectName);
-
-			Ide.CreateProject (projectName, projectCategory, projectKind, projectDirectory);
-
-			Ide.BuildSolution ();
-
-			Ide.CloseAll ();
-		}*/
-
 		[Test]
+		public void TestCreateBuildConsoleProject ()
+		{
+			CreateBuildProject ("ConsoleProject", "Console Project", ".NET");
+		}
+			
 		public void TestCollectionsGeneric ()
 		{
 			var projectName = "ConsoleProject";
@@ -96,6 +75,27 @@ namespace UserInterfaceTests
 			Ide.BuildSolution ();
 
 			AssertExeHasOutput (exe, "Hello Xamarin!");
+
+			Ide.CloseAll ();
+		}
+
+		void AssertExeHasOutput (string exe, string expectedOutput)
+		{
+			var sw = new StringWriter ();
+			var p = ProcessUtils.StartProcess (new ProcessStartInfo (exe), sw, sw, CancellationToken.None);
+			Assert.AreEqual (0, p.Result);
+			string output = sw.ToString ();
+
+			Assert.AreEqual (expectedOutput, output.Trim ());
+		}
+
+		void CreateBuildProject (string projectName, string kind, string category)
+		{
+			var solutionParentDirectory = Util.CreateTmpDir (projectName);
+
+			Ide.CreateProject (projectName, category, kind, solutionParentDirectory);
+
+			Ide.BuildSolution ();
 
 			Ide.CloseAll ();
 		}
