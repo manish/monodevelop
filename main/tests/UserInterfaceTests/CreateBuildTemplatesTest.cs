@@ -31,88 +31,64 @@ using MonoDevelop.Core;
 using MonoDevelop.Ide.Commands;
 using NUnit.Framework;
 using MonoDevelop.Refactoring;
+using System;
 
 namespace UserInterfaceTests
 {
 	/*
-	 * Project templates to be tests - Console Project, Library, Portable Library
+	 * Project templates to be tested - Console Project, Library, Portable Library, NUnit Library, F# Tutorial
 	 * Projects which cannot be tested
 	 *  - Empty Project: They do not have a build target set
 	 *  - Gtk# 2.0 Project - Throws an error when created, though builds fine
-	 *  - NUnit Library - needs NuGet update before building
 	 */
 	public class CreateBuildTemplatesTest: UITestBase
 	{
 		readonly static string DotNetProjectKind = ".NET";
 
+		public readonly static Action EmptyAction = () => { };
+
 		[Test]
 		public void TestCreateBuildConsoleProject ()
 		{
-			CreateBuildProject ("ConsoleProject", "Console Project", DotNetProjectKind);
+			CreateBuildProject ("ConsoleProject", "Console Project", DotNetProjectKind, EmptyAction);
 		}
 
-		/*[Test]
+		[Test]
 		public void TestCreateBuildGtkSharp20Project ()
 		{
-			CreateBuildProject ("Gtk20Project", "Gtk# 2.0 Project", DotNetProjectKind);
-		}*/
+			CreateBuildProject ("Gtk20Project", "Gtk# 2.0 Project", DotNetProjectKind, EmptyAction);
+		}
 
 		[Test]
 		public void TestCreateBuildLibrary ()
 		{
-			CreateBuildProject ("Library", "Library", DotNetProjectKind);
+			CreateBuildProject ("Library", "Library", DotNetProjectKind, EmptyAction);
 		}
 
 		[Test]
 		public void TestCreateBuildPortableLibrary ()
 		{
-			CreateBuildProject ("PortableLibrary", "Portable Library", DotNetProjectKind);
+			CreateBuildProject ("PortableLibrary", "Portable Library", DotNetProjectKind, EmptyAction);
 		}
 
-		/*[Test]
+		[Test]
 		public void TestCreateBuildNUnitLibraryProject ()
 		{
-			CreateBuildProject ("NUnitLibraryProject", "NUnit Library Project", DotNetProjectKind);
-		}*/
-			
-		public void TestCollectionsGeneric ()
-		{
-			var projectName = "ConsoleProject";
-			var solutionParentDirectory = Util.CreateTmpDir (projectName);
-
-			var solutionDirectory = Path.Combine (solutionParentDirectory, projectName);
-
-			var projectDir = Path.Combine (solutionDirectory, projectName);
-			var programFile = Path.Combine (projectDir, "Program.cs");
-			var exe = Path.Combine (solutionDirectory, projectName, "bin", "debug", projectName+".exe");
-
-			Ide.CreateProject (projectName, ".NET", "Console Project", solutionParentDirectory);
-
-			//Ide.OpenFile (programFile);
-
-			Session.SelectActiveWidget ();
-
-			const string data = "List<string> s = new List<string> () {\"one\", \"two\", \"three\"};\nConsole.WriteLine (\"Hello Xamarin!\");";
-			for (int i = 0; i < 8; i++)
-				Session.ExecuteCommand (TextEditorCommands.LineDown);
-			Session.ExecuteCommand (TextEditorCommands.LineStart);
-			Session.ExecuteCommand (TextEditorCommands.DeleteToLineEnd);
-			Session.TypeText (data);
-
-			Ide.BuildSolution (false);
-
-			Session.ExecuteCommand (RefactoryCommands.QuickFix);
-			Thread.Sleep (1000);
-			Session.PressKey (Gdk.Key.Return);
-
-			Ide.BuildSolution ();
-
-			AssertExeHasOutput (exe, "Hello Xamarin!");
-
-			Ide.CloseAll ();
+			/* NUnit project needs to fetch the references using NuGet, so we need
+			 * NuGet to finish before we compile. A better method would be to block
+			 * using ManualResetEvent and monitor the status. When the reference
+			 * fetching is over, signal ManualResetEvent
+			 */
+			CreateBuildProject ("NUnitLibraryProject", "NUnit Library Project", DotNetProjectKind, () => Thread.Sleep (10000));
 		}
 
-		void AssertExeHasOutput (string exe, string expectedOutput)
+		[Test]
+		public void TestCreateBuildFSharpTutorial ()
+		{
+			CreateBuildProject ("FSharpTutorial", "F# Tutorial", DotNetProjectKind, EmptyAction);
+		}
+
+		public void AssertExeHasOutput (string exe, string expectedOutput)
 		{
 			var sw = new StringWriter ();
 			var p = ProcessUtils.StartProcess (new ProcessStartInfo (exe), sw, sw, CancellationToken.None);
@@ -122,11 +98,13 @@ namespace UserInterfaceTests
 			Assert.AreEqual (expectedOutput, output.Trim ());
 		}
 
-		void CreateBuildProject (string projectName, string kind, string category)
+		public void CreateBuildProject (string projectName, string kind, string category, Action beforeBuild)
 		{
 			var solutionParentDirectory = Util.CreateTmpDir (projectName);
 
 			Ide.CreateProject (projectName, category, kind, solutionParentDirectory);
+
+			beforeBuild ();
 
 			Ide.BuildSolution ();
 
