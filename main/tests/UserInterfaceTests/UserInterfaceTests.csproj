@@ -45,10 +45,10 @@
     <Compile Include="UITestBase.cs" />
     <Compile Include="TestService.cs" />
     <Compile Include="Util.cs" />
-    <Compile Include="SimpleTest.cs" />
     <Compile Include="ProcessUtils.cs" />
     <Compile Include="Gui.cs" />
     <Compile Include="Ide.cs" />
+    <Compile Include="CreateBuildTemplatesTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
