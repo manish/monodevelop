@@ -82,7 +82,7 @@ namespace UserInterfaceTests
 			Assert.IsTrue (isPass ? success : !success);
 		}
 
-		static void WaitUntil (Func<bool> done, int timeout = 20000, int pollStep = 200)
+		public static void WaitUntil (Func<bool> done, int timeout = 20000, int pollStep = 200)
 		{
 			do {
 				if (done ())

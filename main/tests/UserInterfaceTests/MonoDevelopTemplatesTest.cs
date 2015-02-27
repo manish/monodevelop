@@ -1,10 +1,10 @@
-//
-// SimpleTest.cs
+﻿//
+// MonoDevelopTemplatesTest.cs
 //
 // Author:
-//       Lluis Sanchez Gual <lluis@novell.com>
+//       Manish Sinha <manish.sinha@xamarin.com>
 //
-// Copyright (c) 2010 Novell, Inc (http://www.novell.com)
+// Copyright (c) 2015 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,14 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System.Diagnostics;
-using System.IO;
 using System.Threading;
-using MonoDevelop.Core;
-using MonoDevelop.Ide.Commands;
+
 using NUnit.Framework;
-using MonoDevelop.Refactoring;
-using System;
 
 namespace UserInterfaceTests
 {
@@ -41,11 +36,9 @@ namespace UserInterfaceTests
 	 *  - Empty Project: They do not have a build target set
 	 *  - Gtk# 2.0 Project - Throws an error when created, though builds fine
 	 */
-	public class CreateBuildTemplatesTest: UITestBase
+	public class MonoDevelopTemplatesTest : CreateBuildTemplatesTestBase
 	{
 		readonly static string DotNetProjectKind = ".NET";
-
-		public readonly static Action EmptyAction = () => { };
 
 		[Test]
 		public void TestCreateBuildConsoleProject ()
@@ -74,12 +67,9 @@ namespace UserInterfaceTests
 		[Test]
 		public void TestCreateBuildNUnitLibraryProject ()
 		{
-			/* NUnit project needs to fetch the references using NuGet, so we need
-			 * NuGet to finish before we compile. A better method would be to block
-			 * using ManualResetEvent and monitor the status. When the reference
-			 * fetching is over, signal ManualResetEvent
-			 */
-			CreateBuildProject ("NUnitLibraryProject", "NUnit Library Project", DotNetProjectKind, () => Thread.Sleep (10000));
+			CreateBuildProject ("NUnitLibraryProject", "NUnit Library Project", DotNetProjectKind, delegate {
+					Ide.WaitUntil (() => Ide.GetStatusMessage () == "Package updates are available.", pollStep: 1000);
+				});
 		}
 
 		[Test]
@@ -87,28 +77,6 @@ namespace UserInterfaceTests
 		{
 			CreateBuildProject ("FSharpTutorial", "F# Tutorial", DotNetProjectKind, EmptyAction);
 		}
-
-		public void AssertExeHasOutput (string exe, string expectedOutput)
-		{
-			var sw = new StringWriter ();
-			var p = ProcessUtils.StartProcess (new ProcessStartInfo (exe), sw, sw, CancellationToken.None);
-			Assert.AreEqual (0, p.Result);
-			string output = sw.ToString ();
-
-			Assert.AreEqual (expectedOutput, output.Trim ());
-		}
-
-		public void CreateBuildProject (string projectName, string kind, string category, Action beforeBuild)
-		{
-			var solutionParentDirectory = Util.CreateTmpDir (projectName);
-
-			Ide.CreateProject (projectName, category, kind, solutionParentDirectory);
-
-			beforeBuild ();
-
-			Ide.BuildSolution ();
-
-			Ide.CloseAll ();
-		}
 	}
 }
+
