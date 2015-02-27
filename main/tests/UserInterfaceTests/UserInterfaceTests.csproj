@@ -48,7 +48,8 @@
     <Compile Include="ProcessUtils.cs" />
     <Compile Include="Gui.cs" />
     <Compile Include="Ide.cs" />
-    <Compile Include="CreateBuildTemplatesTest.cs" />
+    <Compile Include="MonoDevelopTemplatesTest.cs" />
+    <Compile Include="CreateBuildTemplatesTestBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
