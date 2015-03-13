@@ -217,6 +217,11 @@ namespace MonoDevelop.Components.AutoTest
 			session.WaitForWindow (windowName, timeout);
 		}
 
+		public bool IsBuildSuccessful ()
+		{
+			return session.IsBuildSuccessful ();
+		}
+
 		void ClearEventQueue ()
 		{
 			eventQueue.Clear ();

@@ -32,6 +32,7 @@ using System.Threading;
 using System.Collections.Generic;
 using MonoDevelop.Core.Instrumentation;
 using MonoDevelop.Ide;
+using MonoDevelop.Ide.Tasks;
 
 namespace MonoDevelop.Components.AutoTest
 {
@@ -206,6 +207,11 @@ namespace MonoDevelop.Components.AutoTest
 				currentObject = widget;
 				return widget != null && (!focus || FocusWidget (widget));
 			});
+		}
+
+		public bool IsBuildSuccessful ()
+		{
+			return TaskService.Errors.Count == 0;
 		}
 
 		bool FocusWidget (Gtk.Widget widget)

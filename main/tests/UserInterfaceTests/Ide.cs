@@ -77,9 +77,8 @@ namespace UserInterfaceTests
 				"MonoDevelop.Ide.Counters.BuildItemTimer"
 			);
 
-			var status = GetStatusMessage ();
-			var success = status.Contains ("Build successful.") || status.Contains ("Build: 0 errors");
-			Assert.IsTrue (isPass ? success : !success);
+			var status = IsBuildSuccessful ();
+			Assert.IsTrue (status);
 		}
 
 		public static void WaitUntil (Func<bool> done, int timeout = 20000, int pollStep = 200)
@@ -103,6 +102,12 @@ namespace UserInterfaceTests
 				timeout
 			);
 			return (string) Session.GetGlobalValue ("MonoDevelop.Ide.IdeApp.Workbench.Toolbar.statusArea.renderArg.CurrentText");
+		}
+
+		public static bool IsBuildSuccessful (int timeout = 10000)
+		{
+			Thread.Sleep (timeout);
+			return Session.IsBuildSuccessful ();
 		}
 
 		public static void RunAndWaitForTimer (Action action, string counter, int timeout = 20000)
