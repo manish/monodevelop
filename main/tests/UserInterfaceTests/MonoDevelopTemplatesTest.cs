@@ -43,7 +43,6 @@ namespace UserInterfaceTests
 		[Test]
 		public void TestCreateBuildConsoleProject ()
 		{
-			Thread.Sleep (3000);
 			CreateBuildProject ("ConsoleProject", "Console Project", DotNetProjectKind, EmptyAction);
 		}
 
