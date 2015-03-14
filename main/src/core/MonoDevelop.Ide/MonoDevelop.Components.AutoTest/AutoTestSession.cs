@@ -140,9 +140,18 @@ namespace MonoDevelop.Components.AutoTest
 		//TODO: expose ATK API over the session, instead of exposing specific widgets
 		public void SelectTreeviewItem (string name)
 		{
-			var accessible = ((Gtk.Widget)currentObject).Accessible;
-			var child = GetAccessibleChildren (accessible).First (c => c.Role == Atk.Role.TableCell && c.Name == name);
-			Atk.ComponentAdapter.GetObject (child).GrabFocus ();
+			var treeView = currentObject as Gtk.TreeView;
+			if (treeView != null) {
+				treeView.Model.Foreach ((model, path, iter) => {
+					var iterName = (string)treeView.Model.GetValue (iter, 0);
+					Console.WriteLine (iterName);
+					if (string.Equals (name, iterName)) {
+						treeView.SetCursor (path, treeView.Columns[0], false);
+						return true;
+					}
+					return false;
+				});
+			}
 		}
 
 		public string[] GetTreeviewCells ()
@@ -211,7 +220,7 @@ namespace MonoDevelop.Components.AutoTest
 
 		public bool IsBuildSuccessful ()
 		{
-			return TaskService.Errors.Count == 0;
+			return TaskService.Errors.Count (x => x.Severity == TaskSeverity.Error) == 0;
 		}
 
 		bool FocusWidget (Gtk.Widget widget)
