@@ -98,10 +98,10 @@ namespace UserInterfaceTests
 		{
 			//wait for any queued messages to pop
 			WaitUntil (
-				() => Session.GetGlobalValue<int> ("MonoDevelop.Ide.IdeApp.Workbench.Toolbar.statusArea.messageQueue.Count") == 0,
+				() => Session.GetGlobalValue<int> ("MonoDevelop.Ide.IdeApp.Workbench.RootWindow.StatusBar.messageQueue.Count") == 0,
 				timeout
 			);
-			return (string) Session.GetGlobalValue ("MonoDevelop.Ide.IdeApp.Workbench.Toolbar.statusArea.renderArg.CurrentText");
+			return (string) Session.GetGlobalValue ("MonoDevelop.Ide.IdeApp.Workbench.RootWindow.StatusBar.renderArg.CurrentText");
 		}
 
 		public static bool IsBuildSuccessful (int timeout = 10000)
