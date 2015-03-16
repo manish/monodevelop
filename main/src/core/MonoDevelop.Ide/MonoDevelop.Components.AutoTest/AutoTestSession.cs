@@ -32,19 +32,20 @@ using System.Threading;
 using System.Collections.Generic;
 using MonoDevelop.Core.Instrumentation;
 using MonoDevelop.Ide;
+using MonoDevelop.Ide.Tasks;
 
 namespace MonoDevelop.Components.AutoTest
 {
 	public class AutoTestSession: MarshalByRefObject
 	{
 		object currentObject;
-		
+
 		readonly ManualResetEvent syncEvent = new ManualResetEvent (false);
-		
+
 		public AutoTestSession ()
 		{
 		}
-		
+
 		public override object InitializeLifetimeService ()
 		{
 			return null;
@@ -137,11 +138,22 @@ namespace MonoDevelop.Components.AutoTest
 		}
 
 		//TODO: expose ATK API over the session, instead of exposing specific widgets
-		public void SelectTreeviewItem (string name)
+		public bool SelectTreeviewItem (string name)
 		{
-			var accessible = ((Gtk.Widget)currentObject).Accessible;
-			var child = GetAccessibleChildren (accessible).First (c => c.Role == Atk.Role.TableCell && c.Name == name);
-			Atk.ComponentAdapter.GetObject (child).GrabFocus ();
+			bool result = false;
+			var treeView = currentObject as Gtk.TreeView;
+			if (treeView != null) {
+				treeView.Model.Foreach ((model, path, iter) => {
+					var iterName = (string)treeView.Model.GetValue (iter, 0);
+					if (string.Equals (name, iterName)) {
+						treeView.SetCursor (path, treeView.Columns[0], false);
+						result = true;
+						return true;
+					}
+					return false;
+				});
+			}
+			return result;
 		}
 
 		public string[] GetTreeviewCells ()
@@ -206,6 +218,11 @@ namespace MonoDevelop.Components.AutoTest
 				currentObject = widget;
 				return widget != null && (!focus || FocusWidget (widget));
 			});
+		}
+
+		public bool IsBuildSuccessful ()
+		{
+			return TaskService.Errors.Count (x => x.Severity == TaskSeverity.Error) == 0;
 		}
 
 		bool FocusWidget (Gtk.Widget widget)

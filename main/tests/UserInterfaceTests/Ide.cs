@@ -26,12 +26,16 @@
 
 using System;
 using System.Threading;
+
 using MonoDevelop.Core;
 using MonoDevelop.Core.Instrumentation;
 using MonoDevelop.Ide.Commands;
-using NUnit.Framework;
 using MonoDevelop.Components.AutoTest;
-using System.Linq;
+
+using NUnit.Framework;
+
+using Gdk;
+
 
 namespace UserInterfaceTests
 {
@@ -70,18 +74,18 @@ namespace UserInterfaceTests
 			return Session.GetGlobalValue<FilePath> ("MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument.FileName");
 		}
 
-		public static void BuildSolution ()
+		public static void BuildSolution (bool isPass = true)
 		{
 			RunAndWaitForTimer (
 				() => Session.ExecuteCommand (ProjectCommands.BuildSolution),
 				"MonoDevelop.Ide.Counters.BuildItemTimer"
 			);
 
-			var status = GetStatusMessage ();
-			Assert.AreEqual (status, "Build successful.");
+			var status = IsBuildSuccessful ();
+			Assert.IsTrue (isPass == status);
 		}
 
-		static void WaitUntil (Func<bool> done, int timeout = 20000, int pollStep = 200)
+		public static void WaitUntil (Func<bool> done, int timeout = 20000, int pollStep = 200)
 		{
 			do {
 				if (done ())
@@ -96,12 +100,25 @@ namespace UserInterfaceTests
 		//no saner way to do this
 		public static string GetStatusMessage (int timeout = 20000)
 		{
-			//wait for any queued messages to pop
+			if (Platform.IsMac) {
+				WaitUntil (
+					() => Session.GetGlobalValue<string> ("MonoDevelop.Ide.IdeApp.Workbench.RootWindow.StatusBar.text") != string.Empty,
+					timeout
+				);
+				return (string)Session.GetGlobalValue ("MonoDevelop.Ide.IdeApp.Workbench.RootWindow.StatusBar.text");
+			}
+
 			WaitUntil (
-				() => Session.GetGlobalValue<int> ("MonoDevelop.Ide.IdeApp.Workbench.Toolbar.statusArea.messageQueue.Count") == 0,
+				() => Session.GetGlobalValue<int> ("MonoDevelop.Ide.IdeApp.Workbench.RootWindow.StatusBar.messageQueue.Count") == 0,
 				timeout
 			);
-			return (string) Session.GetGlobalValue ("MonoDevelop.Ide.IdeApp.Workbench.Toolbar.statusArea.renderArg.CurrentText");
+			return (string) Session.GetGlobalValue ("MonoDevelop.Ide.IdeApp.Workbench.RootWindow.StatusBar.renderArg.CurrentText");
+		}
+
+		public static bool IsBuildSuccessful (int timeout = 3000)
+		{
+			Thread.Sleep (timeout);
+			return Session.IsBuildSuccessful ();
 		}
 
 		public static void RunAndWaitForTimer (Action action, string counter, int timeout = 20000)
@@ -117,21 +134,24 @@ namespace UserInterfaceTests
 		public static void CreateProject (string name, string category, string kind, FilePath directory)
 		{
 			Session.ExecuteCommand (FileCommands.NewProject);
-			Session.WaitForWindow ("MonoDevelop.Ide.Projects.NewProjectDialog");
+			Thread.Sleep (2000);
+			Assert.True (Session.SelectWidget ("templateCategoriesTreeView"));
+			Assert.True (Session.SelectTreeviewItem (category));
 
-			Session.SelectWidget ("lst_template_types");
-			Session.SelectTreeviewItem (category);
+			Assert.True (Session.SelectWidget ("templatesTreeView"));
+			Assert.True (Session.SelectTreeviewItem (kind));
 
-			Session.SelectWidget ("boxTemplates");
-			var cells = Session.GetTreeviewCells ();
-			var cellName = cells.First (c => c!= null && c.StartsWith (kind + "\n", StringComparison.Ordinal));
-			Session.SelectTreeviewItem (cellName);
+			Gui.PressButton ("nextButton");
+			Thread.Sleep (2000);
 
-			Gui.EnterText ("txt_name", name);
-			Gui.EnterText ("entry_location", directory);
+			Session.TypeText (name);
+			Session.PressKey (Key.Tab);
+			Session.PressKey (Key.Tab);
+			Session.TypeText (directory.FullPath);
 
+			Thread.Sleep (1000);
 			RunAndWaitForTimer (
-				() => Gui.PressButton ("btn_new"),
+				() => Gui.PressButton ("nextButton"),
 				"MonoDevelop.Ide.Counters.OpenDocumentTimer"
 			);
 		}
