@@ -59,12 +59,6 @@ namespace UserInterfaceTests
 		}
 
 		[Test]
-		public void TestCreateBuildPortableLibrary ()
-		{
-			CreateBuildProject ("PortableLibrary", "Portable Library", DotNetProjectKind, EmptyAction);
-		}
-
-		[Test]
 		public void TestCreateBuildNUnitLibraryProject ()
 		{
 			CreateBuildProject ("NUnitLibraryProject", "NUnit Library Project", DotNetProjectKind, delegate {

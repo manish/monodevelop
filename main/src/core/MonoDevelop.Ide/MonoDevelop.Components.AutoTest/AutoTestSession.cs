@@ -144,7 +144,6 @@ namespace MonoDevelop.Components.AutoTest
 			if (treeView != null) {
 				treeView.Model.Foreach ((model, path, iter) => {
 					var iterName = (string)treeView.Model.GetValue (iter, 0);
-					Console.WriteLine (iterName);
 					if (string.Equals (name, iterName)) {
 						treeView.SetCursor (path, treeView.Columns[0], false);
 						return true;

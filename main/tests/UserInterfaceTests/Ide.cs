@@ -78,7 +78,7 @@ namespace UserInterfaceTests
 			);
 
 			var status = IsBuildSuccessful ();
-			Assert.IsTrue (status);
+			Assert.IsTrue (isPass == status);
 		}
 
 		public static void WaitUntil (Func<bool> done, int timeout = 20000, int pollStep = 200)
@@ -96,7 +96,14 @@ namespace UserInterfaceTests
 		//no saner way to do this
 		public static string GetStatusMessage (int timeout = 20000)
 		{
-			//wait for any queued messages to pop
+			if (Platform.IsMac) {
+				WaitUntil (
+					() => Session.GetGlobalValue<string> ("MonoDevelop.Ide.IdeApp.Workbench.RootWindow.StatusBar.text") != string.Empty,
+					timeout
+				);
+				return (string)Session.GetGlobalValue ("MonoDevelop.Ide.IdeApp.Workbench.RootWindow.StatusBar.text");
+			}
+
 			WaitUntil (
 				() => Session.GetGlobalValue<int> ("MonoDevelop.Ide.IdeApp.Workbench.RootWindow.StatusBar.messageQueue.Count") == 0,
 				timeout
@@ -124,10 +131,10 @@ namespace UserInterfaceTests
 		{
 			Session.ExecuteCommand (FileCommands.NewProject);
 			Thread.Sleep (2000);
-			Session.SelectWidget ("templateCategoriesTreeView");
+			var templateCategoriesTreeViewSuccess = Session.SelectWidget ("templateCategoriesTreeView");
 			Session.SelectTreeviewItem (category);
 
-			Session.SelectWidget ("templatesTreeView");
+			var templatesTreeViewSuccess = Session.SelectWidget ("templatesTreeView");
 			Session.SelectTreeviewItem (kind);
 
 			Gui.PressButton ("nextButton");
