@@ -77,7 +77,7 @@ namespace UserInterfaceTests
 				"MonoDevelop.Ide.Counters.BuildItemTimer"
 			);
 
-			var status = IsBuildSuccessful ();
+			var status = IsBuildSuccessful (2000);
 			Assert.IsTrue (isPass == status);
 		}
 
@@ -130,12 +130,15 @@ namespace UserInterfaceTests
 		public static void CreateProject (string name, string category, string kind, FilePath directory)
 		{
 			Session.ExecuteCommand (FileCommands.NewProject);
-			Thread.Sleep (2000);
-			var templateCategoriesTreeViewSuccess = Session.SelectWidget ("templateCategoriesTreeView");
+			Session.WaitForWindow ("MonoDevelop.Ide.Projects.NewProjectDialog");
+
+			Session.SelectWidget ("lst_template_types");
 			Session.SelectTreeviewItem (category);
 
-			var templatesTreeViewSuccess = Session.SelectWidget ("templatesTreeView");
-			Session.SelectTreeviewItem (kind);
+			Session.SelectWidget ("boxTemplates");
+			var cells = Session.GetTreeviewCells ();
+			var cellName = cells.First (c => c!= null && c.StartsWith (kind + "\n", StringComparison.Ordinal));
+			Session.SelectTreeviewItem (cellName);
 
 			Gui.PressButton ("nextButton");
 			Thread.Sleep (2000);

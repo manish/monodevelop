@@ -1,4 +1,4 @@
-﻿//
+//
 // MonoDevelopTemplatesTest.cs
 //
 // Author:
