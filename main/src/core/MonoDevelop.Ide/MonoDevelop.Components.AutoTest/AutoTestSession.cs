@@ -138,22 +138,20 @@ namespace MonoDevelop.Components.AutoTest
 		}
 
 		//TODO: expose ATK API over the session, instead of exposing specific widgets
-		public bool SelectTreeviewItem (string name)
+		public bool SelectTreeviewItem (string treeViewName, string name, string after = null)
 		{
-			bool result = false;
-			var treeView = currentObject as Gtk.TreeView;
-			if (treeView != null) {
-				treeView.Model.Foreach ((model, path, iter) => {
-					var iterName = (string)treeView.Model.GetValue (iter, 0);
-					if (string.Equals (name, iterName)) {
-						treeView.SetCursor (path, treeView.Columns[0], false);
-						result = true;
-						return true;
-					}
-					return false;
-				});
+			var itemSelected = SelectWidget (treeViewName, true);
+			if (!itemSelected)
+				return false;
+			var accessible = ((Gtk.Widget)currentObject).Accessible;
+
+			bool parentFound = after == null;
+			foreach (var child in GetAccessibleChildren (accessible)) {
+				parentFound = parentFound || (child.Role == Atk.Role.TableCell && child.Name.Contains (after));
+				if (parentFound && child.Role == Atk.Role.TableCell && child.Name == name)
+					return Atk.ComponentAdapter.GetObject (child).GrabFocus ();
 			}
-			return result;
+			return false;
 		}
 
 		public string[] GetTreeviewCells ()
@@ -423,7 +421,7 @@ namespace MonoDevelop.Components.AutoTest
 
 			GLib.Timeout.Add ((uint) pollTime, () => {
 				var window = GetFocusedWindow (false);
-				if (window != null && window.Name == windowName) {
+				if (window != null && window.GetType ().FullName == windowName) {
 					syncEvent.Set ();
 					return false;
 				}

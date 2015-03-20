@@ -74,7 +74,7 @@ namespace UserInterfaceTests
 			return Session.GetGlobalValue<FilePath> ("MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument.FileName");
 		}
 
-		public static void BuildSolution (bool isPass = true)
+		public static bool BuildSolution (bool isPass = true)
 		{
 			RunAndWaitForTimer (
 				() => Session.ExecuteCommand (ProjectCommands.BuildSolution),
@@ -82,7 +82,7 @@ namespace UserInterfaceTests
 			);
 
 			var status = IsBuildSuccessful ();
-			Assert.IsTrue (isPass == status);
+			return isPass == status;
 		}
 
 		public static void WaitUntil (Func<bool> done, int timeout = 20000, int pollStep = 200)
@@ -129,31 +129,6 @@ namespace UserInterfaceTests
 			action ();
 
 			WaitUntil (() => c.TotalTime > tt, timeout);
-		}
-
-		public static void CreateProject (string name, string category, string kind, FilePath directory)
-		{
-			Session.ExecuteCommand (FileCommands.NewProject);
-			Thread.Sleep (2000);
-			Assert.True (Session.SelectWidget ("templateCategoriesTreeView"));
-			Assert.True (Session.SelectTreeviewItem (category));
-
-			Assert.True (Session.SelectWidget ("templatesTreeView"));
-			Assert.True (Session.SelectTreeviewItem (kind));
-
-			Gui.PressButton ("nextButton");
-			Thread.Sleep (2000);
-
-			Session.TypeText (name);
-			Session.PressKey (Key.Tab);
-			Session.PressKey (Key.Tab);
-			Session.TypeText (directory.FullPath);
-
-			Thread.Sleep (1000);
-			RunAndWaitForTimer (
-				() => Gui.PressButton ("nextButton"),
-				"MonoDevelop.Ide.Counters.OpenDocumentTimer"
-			);
 		}
 	}
 

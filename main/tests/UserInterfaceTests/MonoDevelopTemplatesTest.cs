@@ -40,28 +40,30 @@ namespace UserInterfaceTests
 	{
 		readonly static string DotNetProjectKind = ".NET";
 
+		readonly static string CategoryRoot = "Other";
+
 		[Test]
 		public void TestCreateBuildConsoleProject ()
 		{
-			CreateBuildProject ("ConsoleProject", "Console Project", DotNetProjectKind, EmptyAction);
+			CreateBuildProject ("ConsoleProject", "Console Project", DotNetProjectKind, CategoryRoot, EmptyAction);
 		}
 
 		[Test]
 		public void TestCreateBuildGtkSharp20Project ()
 		{
-			CreateBuildProject ("Gtk20Project", "Gtk# 2.0 Project", DotNetProjectKind, EmptyAction);
+			CreateBuildProject ("Gtk20Project", "Gtk# 2.0 Project", DotNetProjectKind, CategoryRoot, EmptyAction);
 		}
 
 		[Test]
 		public void TestCreateBuildLibrary ()
 		{
-			CreateBuildProject ("Library", "Library", DotNetProjectKind, EmptyAction);
+			CreateBuildProject ("Library", "Library", DotNetProjectKind, CategoryRoot, EmptyAction);
 		}
 
 		[Test]
 		public void TestCreateBuildNUnitLibraryProject ()
 		{
-			CreateBuildProject ("NUnitLibraryProject", "NUnit Library Project", DotNetProjectKind, delegate {
+			CreateBuildProject ("NUnitLibraryProject", "NUnit Library Project", DotNetProjectKind, CategoryRoot, delegate {
 				Ide.WaitUntil (() => Ide.GetStatusMessage () == "Package updates are available.", pollStep: 1000);
 			});
 		}
@@ -69,7 +71,7 @@ namespace UserInterfaceTests
 		[Test]
 		public void TestCreateBuildFSharpTutorial ()
 		{
-			CreateBuildProject ("FSharpTutorial", "F# Tutorial", DotNetProjectKind, EmptyAction);
+			CreateBuildProject ("FSharpTutorial", "F# Tutorial", DotNetProjectKind, CategoryRoot, EmptyAction);
 		}
 	}
 }

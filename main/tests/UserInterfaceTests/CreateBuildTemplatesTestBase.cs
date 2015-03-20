@@ -49,17 +49,41 @@ namespace UserInterfaceTests
 			Assert.AreEqual (expectedOutput, output.Trim ());
 		}
 
-		public void CreateBuildProject (string projectName, string kind, string category, Action beforeBuild)
+		public void CreateBuildProject (string projectName, string kind, string category, string categoryRoot, Action beforeBuild)
 		{
 			var solutionParentDirectory = Util.CreateTmpDir (projectName);
+			try {
+				var newProject = new NewProjectController ();
+				newProject.Open ();
 
-			Ide.CreateProject (projectName, category, kind, solutionParentDirectory);
+				Assert.IsTrue (newProject.SelectTemplateType (category, categoryRoot));
+				Thread.Sleep (1000);
+				Assert.IsTrue (newProject.SelectTemplate (kind));
+				Thread.Sleep (1000);
 
-			beforeBuild ();
+				Assert.IsTrue (newProject.Next ());
+				Thread.Sleep (1000);
 
-			Ide.BuildSolution ();
+				Assert.IsTrue (newProject.SetProjectName (projectName));
+				Thread.Sleep (1000);
 
-			Ide.CloseAll ();
+				Assert.IsTrue (newProject.SetSolutionName (projectName));
+				Thread.Sleep (1000);
+
+				Assert.IsTrue (newProject.SetSolutionLocation (solutionParentDirectory));
+				Thread.Sleep (1000);
+
+				Assert.IsTrue (newProject.Next ());
+				Thread.Sleep (1000);
+
+				beforeBuild ();
+				Thread.Sleep (1000);
+
+				Assert.IsTrue (Ide.BuildSolution ());
+			} finally {
+				Directory.Delete (solutionParentDirectory, true);
+				Ide.CloseAll ();
+			}
 		}
 	}
 }

@@ -164,10 +164,10 @@ namespace MonoDevelop.Components.AutoTest
 			session.TypeText (text);
 		}
 
-		public void SelectTreeviewItem (string name)
+		public bool SelectTreeviewItem (string treeName, string name, string after = null)
 		{
 			ClearEventQueue ();
-			session.SelectTreeviewItem (name);
+			return session.SelectTreeviewItem (treeName, name, after);
 		}
 
 		public string[] GetTreeviewCells ()
@@ -175,6 +175,11 @@ namespace MonoDevelop.Components.AutoTest
 
 			ClearEventQueue ();
 			return session.GetTreeviewCells ();
+		}
+
+		public bool IsBuildSuccessful ()
+		{
+			return session.IsBuildSuccessful ();
 		}
 
 		public void PressKey (Gdk.Key key)
