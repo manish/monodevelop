@@ -81,7 +81,23 @@ namespace UserInterfaceTests
 
 		public bool CreateProjectInSolutionDirectory (bool projectInSolution)
 		{
-			return true;
+			return SetCheckBox ("createProjectWithinSolutionDirectoryCheckBox", projectInSolution);
+		}
+
+		public bool UseGit (bool useGit, bool useGitIgnore = true)
+		{
+			var gitSelectionSuccess = SetCheckBox ("useGitCheckBox", useGit);
+			if (gitSelectionSuccess && useGit)
+				return gitSelectionSuccess && SetCheckBox ("createGitIgnoreFileCheckBox", useGitIgnore);
+			return gitSelectionSuccess;
+		}
+
+		bool SetCheckBox (string checkBoxName, bool active)
+		{
+			var widgetSelected = Session.SelectWidget (checkBoxName);
+			if (widgetSelected)
+				Session.SetPropertyValue ("Active", active);
+			return widgetSelected;
 		}
 
 		bool TypeTextInGtkEntry (string widgetName, string text)

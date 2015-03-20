@@ -146,7 +146,7 @@ namespace MonoDevelop.Components.AutoTest
 			var accessible = ((Gtk.Widget)currentObject).Accessible;
 
 			bool parentFound = after == null;
-			foreach (var child in GetAccessibleChildren (accessible)) {
+			foreach (var child in GetAccessibleChildren (accessible).ToList ()) {
 				parentFound = parentFound || (child.Role == Atk.Role.TableCell && child.Name.Contains (after));
 				if (parentFound && child.Role == Atk.Role.TableCell && child.Name == name)
 					return Atk.ComponentAdapter.GetObject (child).GrabFocus ();
@@ -163,15 +163,18 @@ namespace MonoDevelop.Components.AutoTest
 				.ToArray ();
 		}
 
-		IEnumerable<Atk.Object> GetAccessibleChildren (Atk.Object obj)
+		IEnumerable<Atk.Object> GetAccessibleChildren (Atk.Object obj, bool recursive = false)
 		{
+			var childrenObjects = new List<Atk.Object> ();
 			var count = obj.NAccessibleChildren;
 			for (int i = 0; i < count; i++) {
 				var child = obj.RefAccessibleChild (i);
-				yield return child;
-				foreach (var c in GetAccessibleChildren (child))
-					yield return c;
+				childrenObjects.Add (child);
+				if (recursive)
+					childrenObjects.AddRange (GetAccessibleChildren (child));
 			}
+
+			return childrenObjects;
 		}
 		
 		public void SendKeyPress (Gdk.Key key, Gdk.ModifierType state)
@@ -308,6 +311,17 @@ namespace MonoDevelop.Components.AutoTest
 		{
 			return Sync (delegate {
 				return Invoke (CurrentObject, CurrentObject.GetType (), methodName, args);
+			});
+		}
+
+		public bool SetPropertyValue (string propertyName, object value, object[] index = null)
+		{
+			return (bool)Sync (delegate {
+				PropertyInfo propertyInfo = CurrentObject.GetType().GetProperty(propertyName);
+				if (propertyInfo != null)
+					propertyInfo.SetValue (CurrentObject, value, index);
+
+				return propertyInfo != null;
 			});
 		}
 		

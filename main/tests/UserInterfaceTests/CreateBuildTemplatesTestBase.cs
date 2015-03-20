@@ -57,24 +57,30 @@ namespace UserInterfaceTests
 				newProject.Open ();
 
 				Assert.IsTrue (newProject.SelectTemplateType (category, categoryRoot));
-				Thread.Sleep (1000);
+				Thread.Sleep (3000);
 				Assert.IsTrue (newProject.SelectTemplate (kind));
-				Thread.Sleep (1000);
+				Thread.Sleep (3000);
 
 				Assert.IsTrue (newProject.Next ());
-				Thread.Sleep (1000);
+				Thread.Sleep (3000);
 
 				Assert.IsTrue (newProject.SetProjectName (projectName));
-				Thread.Sleep (1000);
+				Thread.Sleep (2000);
 
 				Assert.IsTrue (newProject.SetSolutionName (projectName));
-				Thread.Sleep (1000);
+				Thread.Sleep (2000);
 
 				Assert.IsTrue (newProject.SetSolutionLocation (solutionParentDirectory));
-				Thread.Sleep (1000);
+				Thread.Sleep (2000);
+
+				Assert.IsTrue (newProject.CreateProjectInSolutionDirectory (false));
+				Thread.Sleep (2000);
+
+				Assert.IsTrue (newProject.UseGit (true, false));
+				Thread.Sleep (2000);
 
 				Assert.IsTrue (newProject.Next ());
-				Thread.Sleep (1000);
+				Thread.Sleep (2000);
 
 				beforeBuild ();
 				Thread.Sleep (1000);

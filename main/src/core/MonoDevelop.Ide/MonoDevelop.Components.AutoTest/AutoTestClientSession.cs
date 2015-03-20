@@ -125,6 +125,12 @@ namespace MonoDevelop.Components.AutoTest
 			return session.SelectWidget (name, focus);
 		}
 
+		public bool SetPropertyValue (string propertyName, object value, object[] index = null)
+		{
+			ClearEventQueue ();
+			return session.SetPropertyValue (propertyName, value, index);
+		}
+
 		public object GlobalInvoke (string name, params object[] args)
 		{
 			ClearEventQueue ();
