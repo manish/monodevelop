@@ -45,36 +45,43 @@ namespace UserInterfaceTests
 
 		public bool SelectTemplateType (string categoryRoot, string category)
 		{
+			Session.WaitForElement (c => c.TreeView ().Marked ("templateCategoriesTreeView"));
 			return Session.SelectElement (c => c.TreeView ().Marked ("templateCategoriesTreeView").Model ("templateCategoriesListStore__Name").Contains (categoryRoot).NextSiblings ().Text (category));
 		}
 
 		public bool SelectTemplate (string kindRoot, string kind)
 		{
+			Session.WaitForElement (c => c.TreeView ().Marked ("templatesTreeView"));
 			return Session.SelectElement (c => c.TreeView ().Marked ("templatesTreeView").Model ("templateListStore__Name").Contains (kindRoot).NextSiblings ().Text (kind));
 		}
 
 		public bool Next ()
 		{
+			Session.WaitForElement (c => c.Button ().Marked ("nextButton"));
 			return Session.ClickElement (c => c.Button ().Marked ("nextButton"));
 		}
 
 		public bool Previous ()
 		{
+			Session.WaitForElement (c => c.Button ().Marked ("previousButton"));
 			return Session.ClickElement (c => c.Button ().Marked ("previousButton"));
 		}
 
 		public bool SetProjectName (string projectName)
 		{
+			Session.WaitForElement (c => c.Textfield ().Marked ("projectNameTextBox"));
 			return Session.EnterText (c => c.Textfield ().Marked ("projectNameTextBox"), projectName);
 		}
 
 		public bool SetSolutionName (string solutionName)
 		{
+			Session.WaitForElement (c => c.Textfield ().Marked ("solutionNameTextBox"));
 			return Session.EnterText (c => c.Textfield ().Marked ("solutionNameTextBox"), solutionName);
 		}
 
 		public bool SetSolutionLocation (string solutionLocation)
 		{
+			Session.WaitForElement (c => c.Textfield ().Marked ("locationTextBox"));
 			return Session.EnterText (c => c.Textfield ().Marked ("locationTextBox"), solutionLocation);
 		}
 
@@ -93,6 +100,7 @@ namespace UserInterfaceTests
 
 		public bool SetCheckBox (string checkBoxName, bool active)
 		{
+			Session.WaitForElement (c => c.CheckButton ().Marked (checkBoxName));
 			return Session.ToggleElement (c => c.CheckButton ().Marked (checkBoxName), active);
 		}
 			
