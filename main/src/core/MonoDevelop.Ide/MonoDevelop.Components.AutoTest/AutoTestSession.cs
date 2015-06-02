@@ -295,7 +295,10 @@ namespace MonoDevelop.Components.AutoTest
 		{
 			syncEvent.Reset ();
 			GLib.Idle.Add (() => {
-				idleFunc ();
+				Sync (delegate {
+					idleFunc ();
+					return true;
+				});
 				syncEvent.Set ();
 				return false;
 			});
@@ -444,13 +447,12 @@ namespace MonoDevelop.Components.AutoTest
 		public bool Click (AppResult result)
 		{
 			bool success = false;
-
 			try {
 				ExecuteOnIdleAndWait (() => {
 					success = result.Click ();
 				});
 			} catch (TimeoutException e) {
-				throw new TimeoutException (string.Format ("Timeout while executing Result: {0}", result.SourceQuery), e);
+				throw new TimeoutException (string.Format ("Timeout while executing Click: {0}\n\ton Element: {1}", result.SourceQuery, result), e);
 			}
 
 			return success;

@@ -47,6 +47,23 @@ namespace UserInterfaceTests
 			FoldersToClean.Add (checkoutFolder);
 			WaitForPackageUpdate.Invoke ();
 		}
+
+		[Test]
+		[Category ("WIP")]
+		public void TestSolutionStatus()
+		{
+			var checkoutFolder = VCSUtils.CheckoutOrClone ("https://github.com/mono/monkeywrench.git", TakeScreenShot);
+			FoldersToClean.Add (checkoutFolder);
+			WaitForPackageUpdate.Invoke ();
+
+			TakeScreenShot ("Before-SolutionStatus");
+			Session.ExecuteCommand (MonoDevelop.VersionControl.Commands.SolutionStatus);
+			TakeScreenShot ("After-SolutionStatus");
+
+			Session.ClickElement (c => c.Button ().Marked ("commitButton"));
+
+			TakeScreenShot ("After-Pressing-Commit");
+		}
 	}
 }
 
