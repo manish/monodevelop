@@ -430,9 +430,13 @@ namespace MonoDevelop.Components.AutoTest
 		{
 			bool success = false;
 
-			ExecuteOnIdleAndWait (() => {
-				success = result.Select ();
-			});
+			try {
+				ExecuteOnIdleAndWait (() => {
+					success = result.Select ();
+				});
+			} catch (TimeoutException e) {
+				throw new TimeoutException (string.Format ("Timeout while executing Select: {0}", result.SourceQuery), e);
+			}
 
 			return success;
 		}
@@ -441,16 +445,26 @@ namespace MonoDevelop.Components.AutoTest
 		{
 			bool success = false;
 
-			ExecuteOnIdleAndWait (() => {
-				success = result.Click ();
-			});
+			try {
+				ExecuteOnIdleAndWait (() => {
+					success = result.Click ();
+				});
+			} catch (TimeoutException e) {
+				throw new TimeoutException (string.Format ("Timeout while executing Result: {0}", result.SourceQuery), e);
+			}
 
 			return success;
 		}
 
 		public bool EnterText (AppResult result, string text)
 		{
-			ExecuteOnIdleAndWait (() => result.EnterText (text));
+			try {
+				ExecuteOnIdleAndWait (() => {
+					result.EnterText (text);
+				});
+			} catch (TimeoutException e) {
+				throw new TimeoutException (string.Format ("Timeout while executing EnterText: {0}", result.SourceQuery), e);
+			}
 
 			return true;
 		}
@@ -459,9 +473,13 @@ namespace MonoDevelop.Components.AutoTest
 		{
 			bool success = false;
 
-			ExecuteOnIdleAndWait (() => {
-				success = result.Toggle (active);
-			});
+			try {
+				ExecuteOnIdleAndWait (() => {
+					success = result.Toggle (active);
+				});
+			} catch (TimeoutException e) {
+				throw new TimeoutException (string.Format ("Timeout while executing Toggle: {0}", result.SourceQuery), e);
+			}
 
 			return success;
 		}
