@@ -67,6 +67,7 @@
     <Compile Include="VersionControlTests\GitTests.cs" />
     <Compile Include="VersionControlTests\VCSBase.cs" />
     <Compile Include="VersionControlTests\SvnTests.cs" />
+    <Compile Include="DialogTests\NewProjectDialogTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -99,4 +100,7 @@
     </PropertyGroup>
     <Exec Command="$(NuGet) restore -SolutionDirectory $(SolutionDir)" />
   </Target>
+  <ItemGroup>
+    <Folder Include="DialogTests\" />
+  </ItemGroup>
 </Project>
