@@ -34,7 +34,7 @@ namespace MonoDevelop.Components.AutoTest.Results
 {
 	public class GtkWidgetResult : AppResult
 	{
-		Widget resultWidget;
+		protected Widget resultWidget;
 
 		public GtkWidgetResult (Widget widget)
 		{

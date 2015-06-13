@@ -1042,6 +1042,8 @@ namespace MonoDevelop.Components.Commands
 		/// </param>
 		public bool DispatchCommand (object commandId, object dataItem, object initialTarget, CommandSource source)
 		{
+			LoggingService.LogError ("DispatchCommand-- Command: {0} | dataItem: {1} | initialTarger: {2} | source: {3}", commandId, dataItem, initialTarget, source);
+
 			RegisterUserInteraction ();
 			
 			if (guiLock > 0)

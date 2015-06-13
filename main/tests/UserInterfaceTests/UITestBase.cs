@@ -73,8 +73,8 @@ namespace UserInterfaceTests
 		{
 			SetupTestResultFolder (TestContext.CurrentContext.Test.FullName);
 			var currentXSIdeLog = Path.Combine (currentTestResultFolder,string.Format ("{0}.Ide.log", TestContext.CurrentContext.Test.FullName) );
-			Environment.SetEnvironmentVariable ("MONODEVELOP_LOG_FILE", currentXSIdeLog);
-			Environment.SetEnvironmentVariable ("MONODEVELOP_FILE_LOG_LEVEL", "All");
+			//Environment.SetEnvironmentVariable ("MONODEVELOP_LOG_FILE", currentXSIdeLog);
+			//Environment.SetEnvironmentVariable ("MONODEVELOP_FILE_LOG_LEVEL", "All");
 
 			TestService.StartSession (MonoDevelopBinPath);
 			TestService.Session.DebugObject = new UITestDebug ();

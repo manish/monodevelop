@@ -337,6 +337,7 @@ namespace MonoDevelop.Components.AutoTest
 			} catch (TimeoutException e) {
 				throw new TimeoutException (string.Format ("Timeout while executing ExecuteQuery: {0}", query), e);
 			}
+			LoggingService.LogError ("For Query: {0} | Result is [{1}]", query, string.Join ("\n", resultSet.Select (c => c.ToString ())));
 
 			return resultSet;
 		}
