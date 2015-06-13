@@ -49,7 +49,8 @@ namespace MonoDevelop.Components.AutoTest
 			AppResult firstChild = null, lastChild = null;
 
 			foreach (var child in container.Children) {
-				AppResult node = new GtkWidgetResult (child) { SourceQuery = ToString () };
+				AppResult node = child.GetType ().Namespace == "Xwt.GtkBackend" ? new XwtGtkBackendResult (child) : new GtkWidgetResult (child);
+				node.SourceQuery = this.ToString ();
 				resultSet.Add (node);
 
 				// FIXME: Do we need to recreate the tree structure of the AppResults?
