@@ -32,11 +32,9 @@ namespace MonoDevelop.Components.AutoTest.Results
 	{
 		public XwtGtkBackendResult (Widget widget) : base (widget)
 		{
-			MonoDevelop.Core.LoggingService.LogError ("XwtGtkBackendResultType: {0}", widget.GetType ().Name);
 			switch (widget.GetType ().Name) {
 			case "SearchEntry":
 				resultWidget = widget.GetType ().GetProperty ("Entry").GetValue (widget) as Entry;
-				MonoDevelop.Core.LoggingService.LogError ("XwtGtkBackend: {0} | Name: {1}", resultWidget.GetType ().FullName, resultWidget.Name);
 				break;
 			}
 		}
