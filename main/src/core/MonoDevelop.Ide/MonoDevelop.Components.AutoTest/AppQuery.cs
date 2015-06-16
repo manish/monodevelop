@@ -222,6 +222,7 @@ namespace MonoDevelop.Components.AutoTest
 				}
 			}
 
+			MonoDevelop.Core.LoggingService.LogError ("Items:\n {0}\n\n\n", string.Join ("\n", resultSet.Select (c => c.ToString ())));
 			AppResult[] results = new AppResult[resultSet.Count];
 			resultSet.CopyTo (results);
 
