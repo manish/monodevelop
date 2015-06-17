@@ -41,12 +41,20 @@ namespace UserInterfaceTests
 				TemplateKindRoot = GeneralKindRoot,
 				TemplateKind = "Console Project"
 			};
-			CreateBuildProject (templateOptions, EmptyAction);
+			CreateBuildProject (templateOptions, EmptyAction, new GitOptions { UseGit = false });
+			TakeScreenShot ("Final");
+			Assert.Fail ();
 		}
 
 		protected override void OnBuildTemplate (int buildTimeoutInSecs = 180)
 		{
-			Session.Query (c => c.Window ().Children ().TreeView ().Model ().Children ());
+			Session.Query (c => c.Window ().Children ().TreeView ().Model ().Property ("Label", "ConsoleProject"));
+			Session.Query (c => c.Window ().Children ().TreeView ().Model ().Property ("Label", "ConsoleProject").Index (0).Children ());
+			Session.Query (c => c.Window ().Children ().TreeView ().Model ().Index (0).Children ());
+			Session.ClickElement (c => c.Window ().Children ().TreeView ().Model ().Children ().Property ("Label", "<b>ConsoleProject</b>"));
+			Session.Query (c => c.Window ().Children ().TreeView ().Model ().Children ().Property ("Label", "<b>ConsoleProject</b>").Index (0).Children ());
+			Session.Query (c => c.Window ().Children ().TreeView ().Model ().Children ().Property (
+				"Label", "<b>ConsoleProject</b>").Index (0).Children ().Property ("Label", "References").Index (0).Children ());
 		}
 	}
 }

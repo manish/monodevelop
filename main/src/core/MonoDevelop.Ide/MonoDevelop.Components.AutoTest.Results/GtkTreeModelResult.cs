@@ -54,9 +54,15 @@ namespace MonoDevelop.Components.AutoTest.Results
 
 		public override string ToString ()
 		{
+			object customProps = resultIter;
+			if (resultIter.HasValue) {
+				var nodeInfo = TModel.GetValue (resultIter.Value, 0);
+				customProps = string.Format("Label: {0} | Icon: {1}", GetPropertyValue ("Label", nodeInfo), GetPropertyValue ("Icon", nodeInfo));
+			}
+
 			var resultWidget = ParentWidget;
 			var lbl = resultWidget as Label;
-			var customProps = lbl != null ? string.Format ("Text: {0} | UseMarkup: {1} | LabelProp: {2}", lbl.Text, lbl.UseMarkup, lbl.LabelProp) : string.Empty;
+			customProps = lbl != null ? string.Format ("Text: {0} | UseMarkup: {1} | LabelProp: {2}", lbl.Text, lbl.UseMarkup, lbl.LabelProp) : customProps;
 			return String.Format ("{0} - {1} - {2} - {3}, - {4} - [{5}]", resultWidget, resultWidget.Allocation, resultWidget.Name, resultWidget.GetType ().FullName, resultWidget.Toplevel.Name, customProps);
 		}
 			
