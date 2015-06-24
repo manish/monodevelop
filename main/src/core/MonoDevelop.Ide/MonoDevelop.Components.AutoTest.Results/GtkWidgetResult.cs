@@ -208,6 +208,11 @@ namespace MonoDevelop.Components.AutoTest.Results
 			return siblingResults;
 		}
 
+		public override ObjectProperties Properties ()
+		{
+			return GetProperties (resultWidget);
+		}
+
 		public override bool Select ()
 		{
 			if (resultWidget.CanFocus == false) {

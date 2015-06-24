@@ -28,6 +28,8 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Linq;
+using System.Collections.ObjectModel;
+using MonoDevelop.Components.AutoTest.Results;
 
 namespace MonoDevelop.Components.AutoTest
 {
@@ -55,6 +57,9 @@ namespace MonoDevelop.Components.AutoTest
 		public abstract bool TypeKey (string keyString, string state = "");
 		public abstract bool EnterText (string text);
 		public abstract bool Toggle (bool active);
+
+		// Inspection Operations
+		public abstract ObjectProperties Properties ();
 
 		public string SourceQuery { get; set; }
 
@@ -93,6 +98,40 @@ namespace MonoDevelop.Components.AutoTest
 			});
 		}
 
+		protected ObjectProperties GetProperties (object resultObject)
+		{
+			var propertiesObject = new ObjectProperties ();
+			if (resultObject != null) {
+				var properties = resultObject.GetType ().GetProperties (
+					BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+				foreach (var property in properties) {
+					var value = GetPropertyValue (property.Name, resultObject);
+					AppResult result = new ObjectResult (value);
+					var gtkWidgetValue = value as Gtk.Widget;
+					if (gtkWidgetValue != null) {
+						var gtkNotebookValue = value as Gtk.Notebook;
+						var gtkTreeviewValue = value as Gtk.TreeView;
+						if (gtkNotebookValue != null) {
+							result = new GtkNotebookResult (gtkNotebookValue);
+						} else if (gtkTreeviewValue != null) {
+							result = new GtkTreeModelResult (gtkTreeviewValue, gtkTreeviewValue.Model, 0);
+						} else {
+							result = new GtkWidgetResult (gtkWidgetValue);
+						}
+					}
+					#if MAC
+					var nsObjectValue = value as Foundation.NSObject;
+					if (nsObjectValue != null)
+							result = new NSObjectResult (nsObjectValue);
+					#endif
+					
+					propertiesObject.Add (property.Name, result, property);
+				}
+			}
+
+			return propertiesObject;
+		}
+
 		protected AppResult MatchProperty (string propertyName, object objectToCompare, object value)
 		{
 			foreach (var singleProperty in propertyName.Split (new [] { '.' })) {
@@ -111,6 +150,76 @@ namespace MonoDevelop.Components.AutoTest
 				return haystack == needle;
 			} else {
 				return (haystack.IndexOf (needle, StringComparison.Ordinal) > -1);
+			}
+		}
+	}
+
+	public class ObjectProperties : MarshalByRefObject
+	{
+		readonly Dictionary<string,AppResult> propertyMap = new Dictionary<string,AppResult> ();
+
+		readonly Dictionary<string,PropertyMetaData> propertyMetaData = new Dictionary<string,PropertyMetaData> ();
+
+		internal ObjectProperties () { }
+
+		internal void Add (string propertyName, AppResult propertyValue, PropertyInfo propertyInfo)
+		{
+			propertyMap.Add (propertyName, propertyValue);
+			propertyMetaData.Add (propertyName, new PropertyMetaData (propertyInfo));
+		}
+
+		public ReadOnlyCollection<string> GetPropertyNames ()
+		{
+			return propertyMap.Keys.ToList ().AsReadOnly ();
+		}
+
+		public AppResult this [string propertyName]
+		{
+			get {
+				return propertyMap [propertyName];
+			}
+		}
+
+		public PropertyMetaData GetMetaData (string propertyName)
+		{
+			return propertyMetaData [propertyName];
+		}
+	}
+
+	public class PropertyMetaData : MarshalByRefObject
+	{
+		readonly PropertyInfo propertyInfo;
+
+		internal PropertyMetaData (PropertyInfo propertyInfo)
+		{
+			this.propertyInfo = propertyInfo;
+		}
+
+		public string Name
+		{
+			get {
+				return propertyInfo.Name;
+			}
+		}
+
+		public bool CanRead
+		{
+			get {
+				return propertyInfo.CanRead;
+			}
+		}
+
+		public bool CanWrite
+		{
+			get {
+				return propertyInfo.CanWrite;
+			}
+		}
+
+		public string PropertyType
+		{
+			get {
+				return propertyInfo.PropertyType.FullName;
 			}
 		}
 	}
