@@ -150,7 +150,7 @@ namespace MonoDevelop.Components.AutoTest.Results
 				return false;
 			}
 
-			control.PerformClick (null);
+			control.PerformClick (new NSObject ());
 			return true;
 		}
 
