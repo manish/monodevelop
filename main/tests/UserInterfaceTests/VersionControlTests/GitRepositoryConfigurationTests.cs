@@ -74,6 +74,20 @@ namespace UserInterfaceTests
 			CloseRepositoryConfiguration ();
 		}
 
+		[Test, Category ("GitDelete")]
+		public void GitDeleteBranchTest ()
+		{
+			TestClone ("git@github.com:mono/jurassic.git");
+			Ide.WaitForSolutionCheckedOut ();
+
+			OpenRepositoryConfiguration ();
+			CreateNewBranch ("new-branch");
+			SelectBranch ("new-branch");
+			DeleteBranch ("new-branch");
+
+			CloseRepositoryConfiguration ();
+		}
+
 		#endregion
 
 		#region Remotes Tab
@@ -282,6 +296,15 @@ namespace UserInterfaceTests
 		{
 			Assert.IsTrue (Session.SelectElement (c => branchDisplayName (c).Contains (branchName)));
 			TakeScreenShot (string.Format ("Selected-Branch-{0}", branchName));
+		}
+
+		protected void DeleteBranch (string branchName)
+		{
+			Assert.IsTrue (Session.SelectElement (c => branchDisplayName (c).Contains (branchName)));
+			Session.ClickElement (c => IdeQuery.GitConfigurationDialog(c).Children ().Button ().Text ("Delete"), false);
+			TakeScreenShot (string.Format ("Delete-Branch-{0}", branchName));
+			Ide.ClickButtonAlertDialog ("Delete");
+			Session.WaitForElement (IdeQuery.GitConfigurationDialog);
 		}
 
 		protected bool IsBranchSwitched (string branchName)
