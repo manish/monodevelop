@@ -80,6 +80,7 @@
     <Compile Include="Exceptions\TemplateSelectionException.cs" />
     <Compile Include="Exceptions\CreateProjectException.cs" />
     <Compile Include="Workbench.cs" />
+    <Compile Include="VersionControlTests\GitStashManagerTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

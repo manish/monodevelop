@@ -133,7 +133,6 @@ namespace UserInterfaceTests
 		}
 
 		[Test]
-		[Ignore ("When OK is clicked on EditRemoteDialog, it doesn't update the list")]
 		public void EditGitRemoteTest ()
 		{
 			TestClone ("git@github.com:mono/jurassic.git");
