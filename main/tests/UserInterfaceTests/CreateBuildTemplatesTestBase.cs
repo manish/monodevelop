@@ -174,7 +174,7 @@ namespace UserInterfaceTests
 
 		protected virtual void OnClickCreate (NewProjectController newProject)
 		{
-			Session.RunAndWaitForTimer (() => newProject.Next(), "Ide.Shell.SolutionOpened");
+			newProject.Create ();
 		}
 
 		protected virtual void OnBuildTemplate (int buildTimeoutInSecs = 180)
