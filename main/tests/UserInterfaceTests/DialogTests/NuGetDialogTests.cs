@@ -25,6 +25,9 @@
 // THE SOFTWARE.
 
 using NUnit.Framework;
+using System.IO;
+using System.Xml;
+using System.Linq;
 
 namespace UserInterfaceTests
 {
@@ -39,7 +42,7 @@ namespace UserInterfaceTests
 			CreateProject ();
 			NuGetController.AddPackage (new NuGetPackageOptions {
 				PackageName = "CommandLineParser",
-				Version = "2.0.85-alpha",
+				Version = "2.0.99-alpha",
 				IsPreRelease = true
 			});
 		}
@@ -56,7 +59,7 @@ namespace UserInterfaceTests
 			Session.WaitForElement (c => c.Window ().Marked ("MonoDevelop.Ide.Gui.DefaultWorkbench").Property ("TabControl.CurrentTab.Text", "readme.txt"));
 		}
 
-		[Test, Category ("NuGetUpgrade")]
+		[Test]
 		public void TestReadmeTxtUpgradeOpens ()
 		{
 			CreateProject ();
@@ -74,6 +77,53 @@ namespace UserInterfaceTests
 				IsPreRelease = true
 			}, TakeScreenShot);
 			Session.WaitForElement (c => c.Window ().Marked ("MonoDevelop.Ide.Gui.DefaultWorkbench").Property ("TabControl.CurrentTab.Text", "readme.txt"));
+		}
+
+		[Test, Category ("LocalPreserve")]
+		public void TestLocalCopyPreservedUpdate ()
+		{
+			var templateOptions = new TemplateSelectionOptions {
+				CategoryRoot = OtherCategoryRoot,
+				Category = ".NET",
+				TemplateKindRoot = GeneralKindRoot,
+				TemplateKind = "Console Project"
+			};
+			var projectDetails = new ProjectDetails (templateOptions);
+			CreateProject (templateOptions, projectDetails);
+			NuGetController.AddPackage (new NuGetPackageOptions {
+				PackageName = "CommandLineParser",
+				Version = "1.9.7",
+				IsPreRelease = false
+			});
+
+			string solutionFolder = GetSolutionDirectory ();
+			var projectPath = Path.Combine (solutionFolder, projectDetails.ProjectName, projectDetails.ProjectName + ".csproj");
+			Assert.IsTrue (File.Exists (projectPath));
+
+			System.Threading.Thread.Sleep (10000);
+
+			using (var stream = new FileStream (projectPath, FileMode.Open, FileAccess.ReadWrite)) {
+				var xmlDoc = new XmlDocument();
+				xmlDoc.Load(stream);
+				var ns = "http://schemas.microsoft.com/developer/msbuild/2003";
+				XmlNamespaceManager xnManager = new XmlNamespaceManager(xmlDoc.NameTable);
+				xnManager.AddNamespace("ui", ns);
+				XmlNode root = xmlDoc.DocumentElement; 
+				var uitest = root.SelectSingleNode ("//ui:Reference[@Include=\"CommandLine\"]", xnManager);
+				Assert.IsNotNull (uitest, root.InnerXml);
+				Assert.IsNull (uitest.SelectSingleNode ("./ui:Private", xnManager), uitest.InnerXml);
+				var privateNode = xmlDoc.CreateElement ("Private", ns);
+				privateNode.InnerText = "False";
+				uitest.AppendChild (privateNode);
+				stream.SetLength (0);
+				xmlDoc.Save (stream);
+				stream.Flush ();
+				stream.Close ();
+			}
+
+			Session.ExecuteCommand ("MonoDevelop.PackageManagement.Commands.UpdateAllPackagesInSolution");
+			Ide.ClickButtonAlertDialog ("Cancel");
+			Ide.WaitForStatusMessage (new [] { "Packages successfully updated." });
 		}
 
 		ProjectDetails CreateProject (TemplateSelectionOptions templateOptions = null, ProjectDetails projectDetails = null)

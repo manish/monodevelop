@@ -153,7 +153,7 @@ namespace UserInterfaceTests
 			if (enabled == null)
 				Session.WaitForElement (addPackageButton);
 			else
-				Session.WaitForElement (c => (isUpdate? updatePackageButton(c) : addPackageButton (c)).Sensitivity (enabled.Value), 10000);
+				Session.WaitForElement (c => (isUpdate? updatePackageButton(c) : addPackageButton (c)).Sensitivity (enabled.Value), 20000);
 		}
 	}
 }
