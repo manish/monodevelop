@@ -504,12 +504,12 @@ namespace MonoDevelop.Projects.Formats.MSBuild
 		internal static RemoteProjectBuilder GetProjectBuilder (TargetRuntime runtime, string minToolsVersion, string file, string solutionFile)
 		{
 			lock (builders) {
-				//attempt to use 12.0 builder first if available
-				string toolsVersion = "12.0";
-				string binDir = runtime.GetMSBuildBinPath ("12.0");
-				if (binDir == null) {
-					//fall back to 4.0, we know it's always available
-					toolsVersion = "4.0";
+				string toolsVersion = "4.0";
+				foreach (var msbuildVer in new [] { "14.0", "12.0"}) {
+					if (runtime.GetMSBuildBinPath (msbuildVer) != null) {
+						toolsVersion = msbuildVer;
+						break;
+					}
 				}
 
 				//check the ToolsVersion we found can handle the project
@@ -519,6 +519,9 @@ namespace MonoDevelop.Projects.Formats.MSBuild
 					if (runtime is MsNetTargetRuntime && minToolsVersion == "12.0")
 						error = "MSBuild 2013 is not installed. Please download and install it from " +
 						"http://www.microsoft.com/en-us/download/details.aspx?id=40760";
+					if (runtime is MsNetTargetRuntime && minToolsVersion == "14.0")
+						error = "Microsoft Build Tools 2015 is not installed. Please download and install it from " +
+							"https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx";
 					throw new InvalidOperationException (error ?? string.Format (
 						"Runtime '{0}' does not have MSBuild '{1}' ToolsVersion installed",
 						runtime.Id, toolsVersion)
