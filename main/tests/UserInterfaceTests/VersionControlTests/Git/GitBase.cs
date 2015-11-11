@@ -301,6 +301,7 @@ namespace UserInterfaceTests
 			CheckIfUserConflict ();
 			ReproStep ("Check if the selected branch is bold");
 			try {
+				Session.WaitForElement (IdeQuery.GitConfigurationDialog, 10000);
 				Assert.IsTrue (IsBranchSwitched (branchName));
 			} catch (AssertionException) {
 				ReproFailedStep ("The selected branch should be bold", "The selected branch is not bold");
